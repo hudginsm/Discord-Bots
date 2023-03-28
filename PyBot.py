@@ -6,7 +6,7 @@ from discord.ext import commands
 #create connection to discord
 intents = discord.Intents.default()
 intents.message_content = True
-pyBotToken = "MTA0MjMzMjg4MjA1MzYyNzkzNQ.GDdzaK.glpdEvRxeHY2rSy3Co4PbFaXc1Oo_jorfT8yyA"
+pyBotToken = ""
 bot = commands.Bot(command_prefix="$",intents=intents)
 #bot commands
 @bot.command(name='dice', help="This command has two arguments, in order they are amount and sides.", brief="Rolls dice for you.")
