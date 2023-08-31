@@ -2,11 +2,12 @@
 import discord
 import random
 import requests
+import sys
 from discord.ext import commands
 #create connection to discord
 intents = discord.Intents.default()
 intents.message_content = True
-pyBotToken = ""
+pyBotToken = sys.argv[1]
 bot = commands.Bot(command_prefix="$",intents=intents)
 #bot commands
 @bot.command(name='dice', help="This command has two arguments, in order they are amount and sides.", brief="Rolls dice for you.")
