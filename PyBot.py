@@ -3,10 +3,12 @@ import discord
 import random
 import pandas as pd
 import bs4
-from requests_html import HTMLSession
+from requests_html import AsyncHTMLSession
 import re
 import sys
-from discord.ext import commands, tasks
+from discord.ext import commands
+import asyncio
+import nest_asyncio
 #create connection to discord
 intents = discord.Intents.default()
 intents.message_content = True
@@ -57,41 +59,30 @@ async def MonsterInfo(ctx, name):
     url = f"https://www.dndbeyond.com/monsters/{name}"
     await ctx.channel.send(url)
 #Other Command
-@bot.command(name='job_posting')
+@bot.command(name='job')
 async def JobPosting(ctx, title, help=None):
+    if asyncio.get_event_loop().is_running(): # Only patch if needed (i.e. running in Notebook, Spyder, etc)
+        nest_asyncio.apply()
+    job_title = str(title)
+    job_title = job_title.replace("-", " ")
     if help != None:
-        await ctx.channel.send('''
-                               Hey, heard you needed help.\n
-                               Try one of these job titles:\n
-                               "Data Management Specialist", 
-                               "Programmer Analyst", 
-                               "Systems Analyst", 
-                               "Senior Systems Analyst", 
-                               "Manaeger Systems Analysis", 
-                               "Personal Computer/Network Technician", 
-                               "Network Administrator I", 
-                               "Network Administrator II", 
-                               "Senior Systems Architect"
-                               ''')
-    try:
-        job_title = str(title)
-        session = HTMLSession()
-        url = r"https://jobs.pbjcal.org/FindJobs"
-        r = session.get(url)
-        r.html.render()
-        soup = bs4.BeautifulSoup(r.html.raw_html, 'html.parser')
-        jobs = []
-        for listing in soup.find_all('div', class_='job-title col-md-12'):
-            jobs.append(re.findall('<b>.*<\/b>',str(listing))[0][3:-4])
-        series = pd.Series(jobs, name='Job Titles')
-        pctech = series.loc[series.values == title].to_list()
-        if pctech:
-            await ctx.channel.send(f':partying_face: There is a open listing for a/an {job_title} position. :partying_face:')
-        else:
-            await ctx.channel.send(f':sob: There is currently no listings for a/an {job_title} position. :sob: Please check again later. :pleading_face:')
-    except:
-        await ctx.channel.send(':zap: :skull_crossbones: Something has gone wrong with my internal workings. Please try again later. :skull_crossbones: :zap:')
+        await ctx.channel.send('Hey, heard you needed help.\nTry one of these job titles:\n"Data Management Specialist", "Programmer Analyst", "Systems Analyst", "Senior Systems Analyst", "Manaeger Systems Analysis", "Personal Computer/Network Technician", "Network Administrator I", "Network Administrator II", "Senior Systems Architect"')
+    session = AsyncHTMLSession()
+    url = r"https://jobs.pbjcal.org/FindJobs"
+    r = await session.get(url)
+    await r.html.render()
+    soup = bs4.BeautifulSoup(r.html.raw_html, 'html.parser')
+    jobs = []
+    for listing in soup.find_all('div', class_='job-title col-md-12'):
+        jobs.append(re.findall('<b>.*<\/b>',str(listing))[0][3:-4])
+    series = pd.Series(jobs, name='Job Titles')
+    pctech = series.loc[series.values == title].to_list()
+    if pctech:
+        await ctx.channel.send(f':partying_face: There is a open listing for a/an {job_title} position. :partying_face:')
+    else:
+        await ctx.channel.send(f':sob: There is currently no listings for a/an {job_title} position. :sob: Please check again later. :pleading_face:')
+    #except:
+    #    await ctx.channel.send(':zap: :skull_crossbones: Something has gone wrong with my internal workings. Please try again later. :skull_crossbones: :zap:')
 
 #running the bot
 bot.run(pyBotToken)
-input('Press any key...')
