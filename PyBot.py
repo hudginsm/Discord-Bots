@@ -94,3 +94,4 @@ async def JobPosting(ctx, title, help=None):
 
 #running the bot
 bot.run(pyBotToken)
+input('Press any key...')
