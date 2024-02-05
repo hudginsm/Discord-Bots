@@ -12,7 +12,7 @@ import nest_asyncio
 #create connection to discord
 intents = discord.Intents.default()
 intents.message_content = True
-pyBotToken = sys.argv[1]
+pyBotToken = "MTA0MjMzMjg4MjA1MzYyNzkzNQ.GqBbgO.hjfEH8MuGcl6IdOEfNqxwXcN8Bs8XJoFwohe7k" #sys.argv[1]
 bot = commands.Bot(command_prefix="$",intents=intents)
 #####################
 #### Bot Commands ###
