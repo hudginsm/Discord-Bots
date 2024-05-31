@@ -5,7 +5,6 @@ intents = discord.Intents.default()
 intents.message_content = True  # This is necessary for reading message content.
 intents.reactions = True  # This is necessary for handling reactions.
 intents.members = True  # This is necessary for assigning roles to members.
-
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
@@ -34,11 +33,11 @@ async def setup_role_message(ctx, role: discord.Role, *, message: str):
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    if payload.message_id != bot.role_message_id:
+    if payload.message_id != bot.message_id:
         return
 
     if str(payload.emoji) == '✅':
-        guild = bot.get_guild(bot.guild_id)
+        guild = bot.get_guild(guild.guild_id)
         role = guild.get_role(bot.role_id)
         member = guild.get_member(payload.user_id)
         if role and member:
@@ -47,8 +46,8 @@ async def on_raw_reaction_add(payload):
 
 @bot.event
 async def on_raw_reaction_remove(payload):
-    if payload.message_id != bot.role_message_id:
-        return
+    #if payload.message_id != bot.message_id:
+    #    return
 
     if str(payload.emoji) == '✅':
         guild = bot.get_guild(bot.guild_id)
