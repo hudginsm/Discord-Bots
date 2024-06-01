@@ -24,6 +24,13 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command()
+async def get_roles(ctx):
+    roles = ctx.guild.roles
+    for role in roles:
+        await ctx.send(role.name)
+
+
+@bot.command()
 async def setup_role_message(ctx, role: discord.Role, *, message: str):
     role_message = await ctx.send(message)
     await role_message.add_reaction('✅')
@@ -33,13 +40,13 @@ async def setup_role_message(ctx, role: discord.Role, *, message: str):
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    if payload.message_id != bot.message_id:
-        return
+    #if payload.message_id != bot.message_id:
+    #    return
 
     if str(payload.emoji) == '✅':
-        guild = bot.get_guild(guild.guild_id)
-        role = guild.get_role(bot.role_id)
+        guild = discord.guild.Guild
         member = guild.get_member(payload.user_id)
+        role = guild.get_role()
         if role and member:
             await member.add_roles(role)
             await member.send(f'You have been given the {role.name} role!')
@@ -50,7 +57,7 @@ async def on_raw_reaction_remove(payload):
     #    return
 
     if str(payload.emoji) == '✅':
-        guild = bot.get_guild(bot.guild_id)
+        guild = bot.get_guild(discord.Guild.id)
         role = guild.get_role(bot.role_id)
         member = guild.get_member(payload.user_id)
         if role and member:
