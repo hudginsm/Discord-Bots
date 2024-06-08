@@ -1,10 +1,12 @@
 import discord
 from discord.ext import commands
+import sys
 
 intents = discord.Intents.default()
 intents.message_content = True  # This is necessary for reading message content.
 intents.reactions = True  # This is necessary for handling reactions.
 intents.members = True  # This is necessary for assigning roles to members.
+YOUR_BOT_TOKEN = sys.argv[1]
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
@@ -49,4 +51,4 @@ async def on_raw_reaction_remove(payload):
             await member.remove_roles()
 
 # Replace 'YOUR_BOT_TOKEN' with your actual bot token
-bot.run('YOUR_BOT_TOKEN')
+bot.run(YOUR_BOT_TOKEN)
