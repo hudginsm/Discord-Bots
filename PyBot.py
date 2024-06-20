@@ -3,8 +3,6 @@ import discord
 from discord.ext import commands
 import sys
 import random
-import re
-import pandas as pd
 import bs4
 from requests_html import AsyncHTMLSession
 import asyncio
