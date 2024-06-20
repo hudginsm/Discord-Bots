@@ -1,12 +1,12 @@
 #import the needed modules
 import discord
+from discord.ext import commands
+import sys
 import random
+import re
 import pandas as pd
 import bs4
 from requests_html import AsyncHTMLSession
-import re
-import sys
-from discord.ext import commands
 import asyncio
 import nest_asyncio
 #create connection to discord
@@ -14,6 +14,17 @@ intents = discord.Intents.default()
 intents.message_content = True
 pyBotToken = sys.argv[1]
 bot = commands.Bot(command_prefix="$",intents=intents)
+#############################################################################################
+# This class is a custom converter for command arguments in Discord.py.                     #
+# It inherits from the `commands.Converter` class and overrides the `convert` method.       #
+# The `convert` method takes in three parameters: `self`, `ctx`, and `argument`.            #
+# It simply returns the `argument` as is, without any modifications.                        #
+# This means that the converter does not change the argument passed to it.                  #
+# This custom converter can be used to define a converter for command arguments with spaces.#
+#############################################################################################
+class WithSpaces(commands.Converter):
+    async def convert(self, ctx, argument):
+        return argument
 #####################
 #### Bot Commands ###
 #####################
@@ -46,7 +57,7 @@ async def ClassInfo(
     url = f"https://www.dndbeyond.com/classes/{name}"
     await ctx.channel.send(url)
 # DND Backgrounds
-@bot.command(name='v')
+@bot.command(name='background')
 async def BackgroundInfo(
     ctx
     ,name: str = commands.parameter(description= "Name of the background with whitespaces replaced with dashes.")
@@ -109,34 +120,60 @@ async def wave(
     ,user: discord.User = commands.parameter(default=lambda ctx: ctx.author, description= "The user to wave to.")
 ):
     await ctx.send(f'Hello {user.mention} :wave:')
-# Job
-@bot.command(name='job', help="Hey, heard you needed help. Try one of these job titles: 'Data Management Specialist', 'Programmer Analyst', 'Personal Computer/Network Technician'", brief="Check if a job title is avalible on PBJCAL website.")
+# PBJCAL Job Posting
+@bot.command(name='pbjcal-postings', help="Hey, heard you needed help. Try one of these job titles: 'Data Management Specialist', 'Programmer Analyst', 'Personal Computer/Network Technician'", brief="Check if a job title is avalible on PBJCAL website.")
 async def JobPosting(
     ctx
-    ,title: str = commands.parameter(description= "The name of the job title with the white space replaced with dashes.")
+    ,*
+    ,job_title: WithSpaces = commands.parameter(description= "The name of the job title.")
 ):
     try:
-        #if help != None:
-        #    await ctx.channel.send('Hey, heard you needed help.\nTry one of these job titles:\n"Data Management Specialist", "Programmer Analyst", "Systems Analyst", "Senior Systems Analyst", "Manaeger Systems Analysis", "Personal Computer/Network Technician", "Network Administrator I", "Network Administrator II", "Senior Systems Architect"')
-        if asyncio.get_event_loop().is_running(): # Only patch if needed (i.e. running in Notebook, Spyder, etc)
+        if asyncio.get_event_loop().is_running():
             nest_asyncio.apply()
-        job_title = str(title)
-        job_title = job_title.replace("-", " ")
         session = AsyncHTMLSession()
         url = r"https://jobs.pbjcal.org/FindJobs"
         r = await session.get(url)
         await r.html.arender()
         soup = bs4.BeautifulSoup(r.html.raw_html, 'html.parser')
-        jobs = []
-        for listing in soup.find_all('div', class_='job-title col-md-12'):
-            jobs.append(re.findall('<b>.*<\/b>',str(listing))[0][3:-4])
-        series = pd.Series(jobs, name='Job Titles')
-        pctech = series.loc[series.values == job_title].to_list()
-        if pctech:
-            await ctx.channel.send(f':partying_face: There is a open listing for a/an {job_title} position. :partying_face:')
+        postings4title = soup.find_all('div', {'data-posting-title':job_title})
+        openPositions = [str(title.get('data-posting-title')) for title in postings4title]
+        if openPositions:
+             await ctx.channel.send(f':partying_face: There is {len(openPositions)} open listing(s) for a/an {job_title} position. :partying_face:')
         else:
-            await ctx.channel.send(f':sob: There is currently no listings for a/an {job_title} position. :sob: Please check again later. :pleading_face:')
+             await ctx.channel.send(f':sob: There is currently no listings for a/an {job_title} position. :sob: Please check again later. :pleading_face:')
+    except Exception as e:
+         await ctx.channel.send(f':zap: :skull_crossbones: Something has gone wrong due to the following error {e}. Please try again later. :skull_crossbones: :zap:')
+# PBJCAL Job Titles
+@bot.command(name='pbjcal-titles', help="TBD", brief="Brings back a current list of job titles used by PBJCAL.")
+async def JobTitle(
+    ctx
+):
+    try:
+        session = AsyncHTMLSession()
+        url = "https://www.pbjcal.org/employment/Descriptions"
+        renderedHtml = await session.get(url)
+        await renderedHtml.html.arender()
+        soup = bs4.BeautifulSoup(renderedHtml.html.raw_html, 'html.parser')
+        jobs = soup.find('select', {'id':'ddJobTitle'})
+        textStr = ""
+        for job in jobs.find_all('option'):
+            textStr += f"{str(job.get_text())}\n"
+        with open('jobfile.txt', 'w') as file:
+            file.writelines(textStr)
+        await ctx.channel.send('Here is a text file that contains all of the job titles and corresponding job codes currently used by the Personnel Board of Jefferson County Alabama.', file=discord.File('jobfile.txt'))
     except Exception as e:
         await ctx.channel.send(f':zap: :skull_crossbones: Something has gone wrong due to the following error {e}. Please try again later. :skull_crossbones: :zap:')
+@bot.command(name='pbjcal-descriptions', help="TBD", brief="TBD")
+async def JobDescription(
+    ctx
+    ,job_code: str = commands.parameter(description= "The five digit numeric code for the job class.")
+):
+    try:
+        session = AsyncHTMLSession()
+        url = f"https://www.pbjcal.org/employment/Details?jobCode={job_code}"
+        await ctx.channel.send(url)
+    except Exception as e:
+        await ctx.channel.send(f':zap: :skull_crossbones: Something has gone wrong due to the following error {e}. Please try again later. :skull_crossbones: :zap:')
+
 #running the bot
 bot.run(pyBotToken)
