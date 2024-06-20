@@ -12,6 +12,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 pyBotToken = sys.argv[1]
 bot = commands.Bot(command_prefix="$",intents=intents)
+print(f"Bot is ready for action! Logged in as {bot.user}.")
 #############################################################################################
 # This class is a custom converter for command arguments in Discord.py.                     #
 # It inherits from the `commands.Converter` class and overrides the `convert` method.       #
