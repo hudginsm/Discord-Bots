@@ -21,13 +21,13 @@ async def on_ready():
 @bot.command()
 async def setup_role_message(ctx, role: discord.Role, *, message: str):
     role_message = await ctx.send(message)
-    await role_message.add_reaction('✅')
+    await role_message.add_reaction('🔥')
 
 @bot.event
 async def on_raw_reaction_add(payload):
     if payload.message_id != 1245888767068471386:
         return
-    if payload.emoji.name == '✅':
+    if payload.emoji.name == '🔥':
         guild = bot.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
         if member.roles is not None:
@@ -37,7 +37,7 @@ async def on_raw_reaction_add(payload):
 async def on_raw_reaction_remove(payload):
     if payload.message_id != 1245888767068471386:
         return
-    if payload.emoji.name == '✅':
+    if payload.emoji.name == '🔥':
         guild = bot.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
         if member.roles is not None:
