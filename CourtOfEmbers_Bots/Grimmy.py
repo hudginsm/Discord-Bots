@@ -17,6 +17,8 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    if message.channel.category.id == 1245576062222467094:
+        return
     if message.author == bot.user:
         return
     # Check if the message contains a link

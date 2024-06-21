@@ -25,23 +25,23 @@ async def setup_role_message(ctx, role: discord.Role, *, message: str):
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    if payload.message_id != 1253370888498184283:
+    if payload.message_id != 1245888767068471386:
         return
     if payload.emoji.name == '✅':
         guild = bot.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
         if member.roles is not None:
-            await member.add_roles(member.guild.get_role(1197703095560454275))
+            await member.add_roles(member.guild.get_role(1245414524929048666))
 
 @bot.event
 async def on_raw_reaction_remove(payload):
-    if payload.message_id != 1253370888498184283:
+    if payload.message_id != 1245888767068471386:
         return
     if payload.emoji.name == '✅':
         guild = bot.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
         if member.roles is not None:
-            await member.remove_roles(member.guild.get_role(1197703095560454275))
+            await member.remove_roles(member.guild.get_role(1245414524929048666))
 
 # Run the bot
 with open('config.json') as config:
