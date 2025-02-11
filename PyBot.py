@@ -173,6 +173,8 @@ async def JobDescription(
     except Exception as e:
         await ctx.channel.send(f':zap: :skull_crossbones: Something has gone wrong due to the following error {e}. Please try again later. :skull_crossbones: :zap:')
 
+#running the bot
+bot.run(pyBotToken)
 # Run the bot
 with open('config.json') as config:
     data = json.load(config)
