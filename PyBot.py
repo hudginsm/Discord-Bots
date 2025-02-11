@@ -1,7 +1,7 @@
 #import the needed modules
 import discord
 from discord.ext import commands
-import sys
+import json
 import random
 import bs4
 from requests_html import AsyncHTMLSession
@@ -10,7 +10,6 @@ import nest_asyncio
 #create connection to discord
 intents = discord.Intents.default()
 intents.message_content = True
-pyBotToken = sys.argv[1]
 bot = commands.Bot(command_prefix="$",intents=intents)
 print(f"Bot is ready for action! Logged in as {bot.user}.")
 #############################################################################################
@@ -174,5 +173,8 @@ async def JobDescription(
     except Exception as e:
         await ctx.channel.send(f':zap: :skull_crossbones: Something has gone wrong due to the following error {e}. Please try again later. :skull_crossbones: :zap:')
 
-#running the bot
-bot.run(pyBotToken)
+# Run the bot
+with open('config.json') as config:
+    data = json.load(config)
+    token = data['PyBot']['token']
+bot.run(token)
